@@ -20,8 +20,6 @@ jobs:
         run: pip install requests beautifulsoup4
 
       - name: Run script
-        # ここで先ほどのファイルを実行する
         run: python main_announce.py
         env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-
+          SLACK_WEBHOOK_URL: "https://hooks.slack.com/services/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"
