@@ -41,7 +41,16 @@ def get_latest_ranking_info(url):
     duration_span = duration_td.find("span", class_="ise88CpWulY__duration-text") if duration_td else None
     duration_text = duration_span.get_text(strip=True) if duration_span else None
 
-    return summary_text, summary_link, date_text, duration_text
+    # ステータスカラー(#1E8E3E 等) を取得する
+    icon_div = duration_td.find("div", class_="ise88CpWulY__icon-container") if duration_td else None
+    svg_tag = icon_div.find("svg") if icon_div else None
+    fill_color = None
+    if svg_tag:
+        path_tag = svg_tag.find("path")
+        if path_tag:
+            fill_color = path_tag.get("fill")  # 例: "#1E8E3E"
+
+    return summary_text, summary_link, date_text, duration_text, fill_color
 
 def post_to_slack(webhook_url, message):
     payload = {"text": message}
@@ -56,18 +65,34 @@ def main():
         print("Ranking 情報が取得できませんでした。")
         return
 
-    summary, link, date_, duration = info
+    summary, link, date_, duration, fill_color = info
 
-    # Slackに投稿するメッセージを作成
+    # fill_color が #1E8E3E（= Available）なら投稿しない
+    if fill_color == "#1E8E3E":
+        print("現在のステータスは「Available」のため、Slackへのアナウンスは不要です。")
+        return
+
+    # それ以外のカラーの場合 → @channel + デザイン付きでメッセージ投稿
+    # Slackメッセージ本体
     message = (
-        f"*[Ranking 最新情報]*\n"
+        "@channel\n"
+        ":red_circle: *Google Search Status Update: Running*\n\n"
+        "現在のSEOアップデート状況をお知らせします：\n"
         f"• Summary : {summary}\n"
-        f"• Link    : {link}\n"
-        f"• Date    : {date_}\n"
-        f"• Duration: {duration}"
+        f"• Date : {date_}\n"
+        f"• Duration: {duration}\n"
+        f"• Link（詳細） : {link}\n\n"
+        "アップデート中のアクション：\n"
+        "①大規模改修・大量削除は控える\n"
+        "②順位・被リンク・インデックス状況のモニタリングを強化\n"
+        "③施策の優先度をつけて小さく検証 → 即フィードバック\n"
+        "→変動幅が大きいページを早期にテコ入れすることで、"
+        "アップデート期間中でも部分的に回復できるケースもある。\n\n"
+        "詳細はこちら"
+        "「<https://docs.google.com/spreadsheets/d/1WXF39iuIYObQ1HP4aVauJfFcrkzJ6q4BYX7eln_5jI4/edit?gid=816217153#gid=816217153|"
+        "GSSD Bot活用方法（Google Search Status Dashboard）>」"
     )
 
-    # Secrets (環境変数) から Webhook URL を読み込み
     slack_webhook_url = os.environ.get("SLACK_WEBHOOK_URL")
     if not slack_webhook_url:
         print("SLACK_WEBHOOK_URL が設定されていません。")
