@@ -2,7 +2,7 @@ name: ScheduledRankingAnnouncement
 
 on:
   schedule:
-    - cron: '0 0 * * *'  # 毎日UTC0時、日本時間で午前9時に実行される
+    - cron: '0 23 * * *'  # 毎日UTC0時、日本時間で午前9時に実行される
   workflow_dispatch:      # 手動実行も可能にする
 
 jobs:
