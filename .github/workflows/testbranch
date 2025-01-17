@@ -1,3 +1,4 @@
-# if fill_color == "#1E8E3E":
-#    return
-fill_color = "#E37400"
+# 例: test_announceブランチにいる想定
+git add test_bot_token.py
+git commit -m "Test: Force fill_color to #E37400 for Slack test"
+git push origin test_announce
