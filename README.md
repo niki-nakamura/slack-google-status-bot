@@ -25,7 +25,8 @@ slack-google-status-bot/
 ├── README.md                       # 本ファイル
 └── ... (LICENSE等を必要に応じて追加)
 
-## セットアップ手順
+
+## リポジトリ構成
 
 1. **リポジトリをクローン**
    ```bash
