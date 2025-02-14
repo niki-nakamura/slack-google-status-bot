@@ -73,4 +73,3 @@ slack-google-status-bot/
 ---
 
 以上の手順で、GitHub Actionsを用いた定期監視とSlack通知が行えます。必要に応じてフォルダ名やスクリプト名などを調整してご利用ください。
-```
