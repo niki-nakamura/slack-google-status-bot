@@ -74,13 +74,3 @@ slack-google-status-bot/
 
 以上の手順で、GitHub Actionsを用いた定期監視とSlack通知が行えます。必要に応じてフォルダ名やスクリプト名などを調整してご利用ください。
 ```
-
----
-
-## 4. まとめ
-
-1. **新しいフォルダ構成**を定義し、`.github/workflows/` と `scripts/` などでコードを整理。  
-2. **ワークフローYAML**で `run: python scripts/main_announce.py` に変更し、**requirements.txt** から一括インストールするよう修正。  
-3. **対外向けREADME.md**を作成し、使い方・セットアップ・構造をわかりやすく説明。
-
-これらにより、保守性と可読性が向上し、GitHub ActionsとSlack通知がスムーズに連携できるようになります。必要に応じて、テスト用ワークフローやその他のスクリプトを追加入力して運用してください。
