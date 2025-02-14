@@ -1,32 +1,35 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
 import os
 import requests
 from bs4 import BeautifulSoup
 import urllib.parse
 
 def get_latest_ranking_info(url):
-    # ダッシュボードを取得
+    """
+    Google Search Status ダッシュボードから "Ranking" の最新情報を取得する関数。
+    戻り値: (summary_text, summary_link, date_text, duration_text, fill_color) or None
+    """
     response = requests.get(url)
     response.raise_for_status()
-
-    # パース
     soup = BeautifulSoup(response.text, "html.parser")
 
-    # 「Ranking」と書かれた要素を取得
+    # 「Ranking」という文字列をもつ要素を探す
     ranking_span = soup.find("span", class_="nAlKgGlv8Vo__product-name", string="Ranking")
     if not ranking_span:
         return None
 
-    # 次に出てくるテーブルを取得
+    # 次に出てくるテーブル
     ranking_table = ranking_span.find_next("table", class_="ise88CpWulY__psd-table")
     if not ranking_table:
         return None
 
-    # tbody -> 最初の <tr>
     first_row = ranking_table.find("tbody").find("tr")
     if not first_row:
         return None
 
-    # Summary (タイトル)
+    # Summary, Link
     summary_td = first_row.find("td", class_="ise88CpWulY__summary")
     summary_text = summary_td.get_text(strip=True) if summary_td else None
     link_tag = summary_td.find("a") if summary_td else None
@@ -36,26 +39,28 @@ def get_latest_ranking_info(url):
     date_td = first_row.find("td", class_="ise88CpWulY__date")
     date_text = date_td.get_text(strip=True) if date_td else None
 
-    # Duration
+    # Duration & fill_color
     duration_td = first_row.find("td", class_="ise88CpWulY__duration")
     duration_span = duration_td.find("span", class_="ise88CpWulY__duration-text") if duration_td else None
     duration_text = duration_span.get_text(strip=True) if duration_span else None
 
-    # ステータスカラー(#1E8E3E 等) を取得する
     icon_div = duration_td.find("div", class_="ise88CpWulY__icon-container") if duration_td else None
     svg_tag = icon_div.find("svg") if icon_div else None
     fill_color = None
     if svg_tag:
         path_tag = svg_tag.find("path")
         if path_tag:
-            fill_color = path_tag.get("fill")  # 例: "#1E8E3E"
+            fill_color = path_tag.get("fill")
 
     return summary_text, summary_link, date_text, duration_text, fill_color
 
+
 def post_to_slack(webhook_url, message):
+    """Slackにシンプルなテキストメッセージを送信する"""
     payload = {"text": message}
     response = requests.post(webhook_url, json=payload)
     response.raise_for_status()
+
 
 def main():
     URL = "https://status.search.google.com/summary"
@@ -67,13 +72,12 @@ def main():
 
     summary, link, date_, duration, fill_color = info
 
-    # fill_color が #1E8E3E（= Available）なら投稿しない
+    # "Available" 状態(#1E8E3E) なら通知不要
     if fill_color == "#1E8E3E":
-        print("現在のステータスは「Available」のため、Slackへのアナウンスは不要です。")
+        print("現在のステータスは『Available』のため、Slackへのアナウンスは不要です。")
         return
 
-    # それ以外のカラーの場合 → @channel + デザイン付きでメッセージ投稿
-    # Slackメッセージ本体
+    # Slackに投稿するメッセージ
     message = (
         "@channel\n"
         ":red_circle: *Google Search Status Update: Running*\n\n"
@@ -88,7 +92,7 @@ def main():
         "③施策の優先度をつけて小さく検証 → 即フィードバック\n"
         "→変動幅が大きいページを早期にテコ入れすることで、"
         "アップデート期間中でも部分的に回復できるケースもある。\n\n"
-        "詳細はこちら"
+        "詳細はこちら "
         "「<https://docs.google.com/spreadsheets/d/1WXF39iuIYObQ1HP4aVauJfFcrkzJ6q4BYX7eln_5jI4/edit?gid=816217153#gid=816217153|"
         "GSSD Bot活用方法（Google Search Status Dashboard）>」"
     )
@@ -98,9 +102,9 @@ def main():
         print("SLACK_WEBHOOK_URL が設定されていません。")
         return
 
-    # 投稿
     post_to_slack(slack_webhook_url, message)
     print("Slackに投稿しました。")
+
 
 if __name__ == "__main__":
     main()
