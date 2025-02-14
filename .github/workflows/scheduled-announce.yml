@@ -2,14 +2,15 @@ name: ScheduledRankingAnnouncement
 
 on:
   schedule:
-    - cron: '0 23 * * *'  # 毎日UTC0時、日本時間で午前9時に実行される
+    - cron: '0 23 * * *'  # 毎日UTC 23時、日本時間で午前8時に実行
   workflow_dispatch:      # 手動実行も可能にする
 
 jobs:
   run_script:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - name: Check out repository
+        uses: actions/checkout@v2
 
       - name: Set up Python
         uses: actions/setup-python@v2
@@ -17,10 +18,9 @@ jobs:
           python-version: '3.x'
 
       - name: Install dependencies
-        run: pip install requests beautifulsoup4
+        run: pip install -r requirements.txt
 
-      - name: Run script
-        # ここで先ほどのファイルを実行する
-        run: python main_announce.py
+      - name: Run Slack announce script
+        run: python scripts/main_announce.py
         env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}  
