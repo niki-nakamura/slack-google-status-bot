@@ -24,15 +24,14 @@ slack-google-status-bot/
 ├── requirements.txt                # Python依存パッケージの一覧
 ├── README.md                       # 本ファイル
 └── ... (LICENSE等を必要に応じて追加)
+   ```
 
-
-## リポジトリ構成
+## セットアップ手順
 
 1. **リポジトリをクローン**
    ```bash
    git clone https://github.com/niki-nakamura/slack-google-status-bot.git
    cd slack-google-status-bot
-   ```
 
 2. **Python依存パッケージをインストール**
    ```bash
