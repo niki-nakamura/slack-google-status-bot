@@ -77,8 +77,6 @@ slack-google-status-bot/
 
 ---
 
----
-
 ## 4. まとめ
 
 1. **新しいフォルダ構成**を定義し、`.github/workflows/` と `scripts/` などでコードを整理。  
